@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+<head><title>Cruzando la Calle Simulator</title>
+<script src= "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0-beta.3/phaser.min.js"></script>
+</head>
+<body>
+<h1>Tu no eres calle</h1>
+<h2>Tronchazo</h2>
+
+<script>
+let cursors;
+let  width = 800;
+let  height = 600;
+let player_x = 32;
+let player_y = 64;
+
+let rcar_img;
+let ycar_img;
+let gcar_img;
+let bcar_img;
+let robot_img;
+
+let rcar_speed = 2;
+let ycar_speed = 1.5;
+let gcar_speed = 0.5;
+let bcar_speed = 1;
+let robot_speed = 1;
+
+let road1_y = 160;
+let road2_y = 224;
+let road3_y = 380;
+let road4_y = 460;
+
+let offset_x = 128;
+let road_offset_y = 96;
+
+let lives = 3;
+let score = 0;
+
+let lives_txt;
+let score_txt;
+
+let crossing = false;
+
+let config = {
+	width: 800,
+	height: 600,
+	physics: {
+        default: 'arcade',
+        arcade: {
+            debug: true,
+        }
+    },
+	scene: {
+		preload: preload,
+		create: create,
+		update: update
+	}
+}
+let game = new Phaser.Game(config);
+
+function reset(){
+	
+crossing = false;
+
+	robot_img.x = player_x;
+	robot_img.y = player_y;
+
+	rcar_img.x = width-offset_x;
+	rcar_img.y = road1_y;
+
+	ycar_img.x = width-offset_x
+	ycar_img.y = road2_y;
+
+	gcar_img.x = offset_x
+	gcar_img.y = road3_y;
+
+	bcar_img.x = offset_x
+	bcar_img.y = road4_y;
+
+}
+
+function preload(){
+	this.load.image("background", "highway.png");
+	this.load.image("rcar", "car_red_2.png");
+	this.load.image("ycar", "car_yellow_2.png");
+	this.load.image("gcar", "car_green_2.png");
+	this.load.image("bcar", "car_blue_2.png");
+	this.load.image("robot", "character.png");
+
+}
+
+function  create(){
+	this.add.image(width/2, height/2, "background");
+	rcar_img = this.add.image(600, road1_y, "rcar");
+	rcar_img.setRotation(1.5708);
+	rcar_img.flipY = true;
+	this.physics.add.existing(rcar_img, false);
+	ycar_img = this.add.image(200, road2_y, "ycar");
+	ycar_img.setRotation(1.5708);
+	this.physics.add.existing(ycar_img, false);
+	gcar_img = this.add.image(50, road3_y, "gcar");
+	gcar_img.setRotation(1.5708);
+	this.physics.add.existing(gcar_img, false);
+	bcar_img = this.add.image(700, road4_y, "bcar");
+	bcar_img.setRotation(1.5708);
+	bcar_img.flipY = true;
+	this.physics.add.existing(bcar_img, false);
+
+	robot_img = this.add.image(200, 20, "robot");
+	this.physics.add.existing(robot_img, false);
+
+	graphics = this.add.graphics();
+
+	robot_img.setScale(0.5);
+	cursors = this.input.keyboard.createCursorKeys();
+	
+	let cars = [rcar_img, ycar_img, gcar_img, bcar_img];
+
+	for (let i = 0; i < cars.length; i++){
+		this.physics.add.collider(robot_img, cars[i], function (player, car){
+			reset();
+
+			lives--;
+			lives_txt.text = lives.toString();
+		});
+	}
+
+
+
+	this.add.text(width/2, 64, "VIDAS");
+	lives_txt = this.add.text(width/2+64, 64, "3");
+	
+
+	this.add.text(width/2+128, 64, "PUNTOS");
+	score_txt = this.add.text(width/2+196, 64, "0");
+
+}
+
+function update(){
+	rcar_img.x -= rcar_speed;	
+	ycar_img.x += ycar_speed;	
+	gcar_img.x += gcar_speed;	
+	bcar_img.x -= bcar_speed;
+
+	check_car(rcar_img);
+	check_car(ycar_img);
+	check_car(gcar_img);
+	check_car(bcar_img);
+
+	if (robot_img.y > height - road_offset_y)
+		crossing = true;
+	else if (robot_img.y <= road_offset_y && crossing){
+		crossing = false;
+		reset();
+		score++;
+		score_txt.text = score.toString();
+	}
+	
+	if (cursors.up.isDown)
+    {
+        robot_img.y -= robot_speed;
+    }
+	
+	if (cursors.down.isDown)
+    {
+        robot_img.y += robot_speed;
+    }
+	
+	if (cursors.right.isDown)
+    {
+        robot_img.x += robot_speed;
+    }
+	
+	if (cursors.left.isDown)
+    {
+        robot_img.x -= robot_speed;
+    }
+}
+
+function check_car (car){
+	if (car.flipY && car.x < -offset_x)
+		car.x = width-offset_x;
+	else if (!car.flipY && car.x > width-offset_x)
+		car.x = offset_x;
+}
+
+</script>
+</body>
+</html>
