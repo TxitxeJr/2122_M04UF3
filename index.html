@@ -1,30 +1,30 @@
 <!doctype html>
 <html>
-<head><title>Cruzando la Calle Simulator</title>
+<head><title>Surcando los cielos estelareh</title>
 <script src= "https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0-beta.3/phaser.min.js"></script>
 </head>
 <body>
-<h1>Tu no eres calle</h1>
-<h2>Tronchazo</h2>
+<h1>Hasta el infinito</h1>
+<h2>Y mas infinito</h2>
 
 <script>
 let cursors;
 let  width = 800;
 let  height = 600;
 let player_x = 32;
-let player_y = 64;
+let player_y = 300;
 
-let rcar_img;
+let alien_img;
 let ycar_img;
 let gcar_img;
 let bcar_img;
-let robot_img;
+let ship_img;
 
-let rcar_speed = 2;
-let ycar_speed = 1.5;
-let gcar_speed = 0.5;
+let alien_speed = 1;
+let ycar_speed = 1;
+let gcar_speed = 1;
 let bcar_speed = 1;
-let robot_speed = 1;
+let ship_speed = 1.5;
 
 let road1_y = 160;
 let road2_y = 224;
@@ -63,11 +63,11 @@ function reset(){
 	
 crossing = false;
 
-	robot_img.x = player_x;
-	robot_img.y = player_y;
+	ship_img.x = player_x;
+	ship_img.y = player_y;
 
-	rcar_img.x = width-offset_x;
-	rcar_img.y = road1_y;
+	alien_img.x = width-offset_x;
+	alien_img.y = road1_y;
 
 	ycar_img.x = width-offset_x
 	ycar_img.y = road2_y;
@@ -81,44 +81,35 @@ crossing = false;
 }
 
 function preload(){
-	this.load.image("background", "highway.png");
-	this.load.image("rcar", "car_red_2.png");
-	this.load.image("ycar", "car_yellow_2.png");
-	this.load.image("gcar", "car_green_2.png");
-	this.load.image("bcar", "car_blue_2.png");
-	this.load.image("robot", "character.png");
+	this.load.image("background", "space.png");
+	this.load.image("alien", "bad_alien.png");
+	this.load.image("ship", "spaceship.png");
 
 }
 
 function  create(){
 	this.add.image(width/2, height/2, "background");
-	rcar_img = this.add.image(600, road1_y, "rcar");
-	rcar_img.setRotation(1.5708);
-	rcar_img.flipY = true;
-	this.physics.add.existing(rcar_img, false);
-	ycar_img = this.add.image(200, road2_y, "ycar");
-	ycar_img.setRotation(1.5708);
+	alien_img = this.add.image(600, road1_y, "alien");
+	this.physics.add.existing(alien_img, false);
+	ycar_img = this.add.image(200, road2_y, "alien");
 	this.physics.add.existing(ycar_img, false);
-	gcar_img = this.add.image(50, road3_y, "gcar");
-	gcar_img.setRotation(1.5708);
+	gcar_img = this.add.image(50, road3_y, "alien");
 	this.physics.add.existing(gcar_img, false);
-	bcar_img = this.add.image(700, road4_y, "bcar");
-	bcar_img.setRotation(1.5708);
-	bcar_img.flipY = true;
+	bcar_img = this.add.image(700, road4_y, "alien");
 	this.physics.add.existing(bcar_img, false);
 
-	robot_img = this.add.image(200, 20, "robot");
-	this.physics.add.existing(robot_img, false);
+	ship_img = this.add.image(player_x, player_y, "ship");
+	this.physics.add.existing(ship_img, false);
 
 	graphics = this.add.graphics();
 
-	robot_img.setScale(0.5);
+	ship_img.setScale(2);
 	cursors = this.input.keyboard.createCursorKeys();
 	
-	let cars = [rcar_img, ycar_img, gcar_img, bcar_img];
+	let enemies = [alien_img, ycar_img, gcar_img, bcar_img];
 
-	for (let i = 0; i < cars.length; i++){
-		this.physics.add.collider(robot_img, cars[i], function (player, car){
+	for (let i = 0; i < enemies.length; i++){
+		this.physics.add.collider(ship_img, enemies[i], function (player, alien){
 			reset();
 
 			lives--;
@@ -138,19 +129,19 @@ function  create(){
 }
 
 function update(){
-	rcar_img.x -= rcar_speed;	
-	ycar_img.x += ycar_speed;	
-	gcar_img.x += gcar_speed;	
+	alien_img.x -= alien_speed;	
+	ycar_img.x -= ycar_speed;	
+	gcar_img.x -= gcar_speed;	
 	bcar_img.x -= bcar_speed;
 
-	check_car(rcar_img);
-	check_car(ycar_img);
-	check_car(gcar_img);
-	check_car(bcar_img);
+	check_alien(alien_img);
+	check_alien(ycar_img);
+	check_alien(gcar_img);
+	check_alien(bcar_img);
 
-	if (robot_img.y > height - road_offset_y)
+	if (ship_img.y > height - road_offset_y)
 		crossing = true;
-	else if (robot_img.y <= road_offset_y && crossing){
+	else if (ship_img.y <= road_offset_y && crossing){
 		crossing = false;
 		reset();
 		score++;
@@ -159,30 +150,24 @@ function update(){
 	
 	if (cursors.up.isDown)
     {
-        robot_img.y -= robot_speed;
+        ship_img.y -= ship_speed;
     }
 	
 	if (cursors.down.isDown)
     {
-        robot_img.y += robot_speed;
+        ship_img.y += ship_speed;
     }
 	
-	if (cursors.right.isDown)
-    {
-        robot_img.x += robot_speed;
-    }
-	
-	if (cursors.left.isDown)
-    {
-        robot_img.x -= robot_speed;
-    }
 }
 
-function check_car (car){
-	if (car.flipY && car.x < -offset_x)
-		car.x = width-offset_x;
-	else if (!car.flipY && car.x > width-offset_x)
-		car.x = offset_x;
+function check_alien (alien){
+	if (alien.x < -offset_x){
+		alien.x = width-offset_x;
+		   lives--;}
+
+	else if (alien.x > width-offset_x){
+		alien.x = offset_x;
+		   lives--;}
 }
 
 </script>
